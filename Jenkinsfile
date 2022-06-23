@@ -26,18 +26,18 @@ pipeline {
                 withDockerRegistry([url: "", credentialsId: "dockerhub"]) {
                     sh 'echo "STAGE 3: Uploading image to dockerhub repository ..."'
                     sh 'docker login'
-                    sh 'docker tag web-app:v1.0 nigercode/web-app:v1.0'
-                    sh 'docker push nigercode/web-app:v1.0'          
+                    sh 'docker tag web-app:v1.0 chikky2018/web-app:v1.0'
+                    sh 'docker push chikky2018/web-app:v1.0'          
                 }
             }
         }                                   
         stage( 'Deploy image to AWS EKS' ) {
             steps {
-                withAWS( region:'us-west-2', credentials:'capstone' ) {
+                withAWS( region:'us-east-1', credentials:'k8s' ) {
                     sh 'echo "STAGE 4: Deploying image to AWS EKS cluster ..."'
-                    sh 'aws eks --region us-west-2 update-kubeconfig --name capstone'
-                    sh 'kubectl config use-context arn:aws:eks:us-west-2:428819381342:cluster/capstone'            
-                    sh 'kubectl set image deployment web-app web-app=nigercode/web-app:v1.0'
+                    sh 'aws eks --region us-east-1 update-kubeconfig --name k8s'
+                    sh 'kubectl config use-context arn:aws:eks:us-east-1:878972269374:cluster/dev'
+                    sh 'kubectl set image deployment web-app web-app=chikky2018/web-app:v1.0'
                     sh 'kubectl rollout status deployment web-app'
                     sh 'kubectl apply -f templates/deployment.yml'
                     sh 'kubectl apply -f templates/loadbalancer.yml'
