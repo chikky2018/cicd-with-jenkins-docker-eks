@@ -17,7 +17,7 @@ pipeline {
         stage( 'Build docker image for app' ) {
             steps {
                 sh 'echo "STAGE 2: Building and tagging docker image ..."'
-                sh 'docker build -t web-app:v1.0 .'
+                sh 'docker build -t web-app'
                 sh 'docker image ls'                  
             }
         } 
@@ -26,7 +26,7 @@ pipeline {
                 withDockerRegistry([url: "", credentialsId: "dockerhub"]) {
                     sh 'echo "STAGE 3: Uploading image to dockerhub repository ..."'
                     sh 'docker login'
-                    sh 'docker tag web-app:v1.0 chikky2018/web-app:v1.0'
+                    sh 'docker tag web-app:v1.0 chikky2018/web-app'
                     sh 'docker push chikky2018/web-app:v1.0'          
                 }
             }
@@ -37,7 +37,7 @@ pipeline {
                     sh 'echo "STAGE 4: Deploying image to AWS EKS cluster ..."'
                     sh 'aws eks --region us-east-1 update-kubeconfig --name k8s'
                     sh 'kubectl config use-context arn:aws:eks:us-east-1:878972269374:cluster/dev'
-                    sh 'kubectl set image deployment web-app web-app=chikky2018/web-app:v1.0'
+                    sh 'kubectl set image deployment web-app web-app=chikky2018/web-app'
                     sh 'kubectl rollout status deployment web-app'
                     sh 'kubectl apply -f templates/deployment.yml'
                     sh 'kubectl apply -f templates/loadbalancer.yml'
